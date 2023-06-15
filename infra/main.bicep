@@ -72,83 +72,83 @@ resource storageResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' ex
   name: !empty(storageResourceGroupName) ? storageResourceGroupName : resourceGroup.name
 }
 
-// Create an App Service Plan to group applications under the same payment plan and SKU
-module appServicePlan 'core/host/appserviceplan.bicep' = {
-  name: 'appserviceplan'
-  scope: resourceGroup
-  params: {
-    name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${resourceToken}'
-    location: location
-    tags: tags
-    sku: {
-      name: 'B1'
-      capacity: 1
-    }
-    kind: 'linux'
-  }
-}
-
-// The application frontend
-module backend 'core/host/appservice.bicep' = {
-  name: 'web'
-  scope: resourceGroup
-  params: {
-    name: !empty(backendServiceName) ? backendServiceName : '${abbrs.webSitesAppService}backend-${resourceToken}'
-    location: location
-    tags: union(tags, { 'azd-service-name': 'backend' })
-    appServicePlanId: appServicePlan.outputs.id
-    runtimeName: 'python'
-    runtimeVersion: '3.10'
-    scmDoBuildDuringDeployment: true
-    managedIdentity: true
-    appSettings: {
-      AZURE_STORAGE_ACCOUNT: storage.outputs.name
-      AZURE_STORAGE_CONTAINER: storageContainerName
-      AZURE_OPENAI_SERVICE: openAi.outputs.name
-      AZURE_SEARCH_INDEX: searchIndexName
-      AZURE_SEARCH_SERVICE: searchService.outputs.name
-      AZURE_OPENAI_GPT_DEPLOYMENT: gptDeploymentName
-      AZURE_OPENAI_CHATGPT_DEPLOYMENT: chatGptDeploymentName
-    }
-  }
-}
-
-module openAi 'core/ai/cognitiveservices.bicep' = {
-  name: 'openai'
-  scope: openAiResourceGroup
-  params: {
-    name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
-    location: openAiResourceGroupLocation
-    tags: tags
-    sku: {
-      name: openAiSkuName
-    }
-    deployments: [
-      {
-        name: gptDeploymentName
-        model: {
-          format: 'OpenAI'
-          name: gptModelName
-          version: '1'
-        }
-        scaleSettings: {
-          scaleType: 'Standard'
-        }
-      }
-      {
-        name: chatGptDeploymentName
-        model: {
-          format: 'OpenAI'
-          name: chatGptModelName
-          version: '0301'
-        }
-        scaleSettings: {
-          scaleType: 'Standard'
-        }
-      }
-    ]
-  }
-}
+//// Create an App Service Plan to group applications under the same payment plan and SKU
+//module appServicePlan 'core/host/appserviceplan.bicep' = {
+//  name: 'appserviceplan'
+//  scope: resourceGroup
+//  params: {
+//    name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${resourceToken}'
+//    location: location
+//    tags: tags
+//    sku: {
+//      name: 'B1'
+//      capacity: 1
+//    }
+//    kind: 'linux'
+//  }
+//}
+//
+//// The application frontend
+//module backend 'core/host/appservice.bicep' = {
+//  name: 'web'
+//  scope: resourceGroup
+//  params: {
+//    name: !empty(backendServiceName) ? backendServiceName : '${abbrs.webSitesAppService}backend-${resourceToken}'
+//    location: location
+//    tags: union(tags, { 'azd-service-name': 'backend' })
+//    appServicePlanId: appServicePlan.outputs.id
+//    runtimeName: 'python'
+//    runtimeVersion: '3.10'
+//    scmDoBuildDuringDeployment: true
+//    managedIdentity: true
+//    appSettings: {
+//      AZURE_STORAGE_ACCOUNT: storage.outputs.name
+//      AZURE_STORAGE_CONTAINER: storageContainerName
+//      AZURE_OPENAI_SERVICE: openAi.outputs.name
+//      AZURE_SEARCH_INDEX: searchIndexName
+//      AZURE_SEARCH_SERVICE: searchService.outputs.name
+//      AZURE_OPENAI_GPT_DEPLOYMENT: gptDeploymentName
+//      AZURE_OPENAI_CHATGPT_DEPLOYMENT: chatGptDeploymentName
+//    }
+//  }
+//}
+//
+//module openAi 'core/ai/cognitiveservices.bicep' = {
+//  name: 'openai'
+//  scope: openAiResourceGroup
+//  params: {
+//    name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
+//    location: openAiResourceGroupLocation
+//    tags: tags
+//    sku: {
+//      name: openAiSkuName
+//    }
+//    deployments: [
+//      {
+//        name: gptDeploymentName
+//        model: {
+//          format: 'OpenAI'
+//          name: gptModelName
+//          version: '1'
+//        }
+//        scaleSettings: {
+//          scaleType: 'Standard'
+//        }
+//      }
+//      {
+//        name: chatGptDeploymentName
+//        model: {
+//          format: 'OpenAI'
+//          name: chatGptModelName
+//          version: '0301'
+//        }
+//        scaleSettings: {
+//          scaleType: 'Standard'
+//        }
+//      }
+//    ]
+//  }
+//}
 
 module formRecognizer 'core/ai/cognitiveservices.bicep' = {
   name: 'formrecognizer'
